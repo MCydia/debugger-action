@@ -126,13 +126,13 @@ echo -e "$TIMEOUT_MESSAGE"
 
 if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
   MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
-  echo -n "Sending information to Telegram Bot......"
+  echo -n "向电报机器人发送SSH连接代码......"
   curl -k --data chat_id="${TELEGRAM_CHAT_ID}" --data "text=SSH连接代码:  
   
   ${SSH_LINE}  
   
-  复制蓝色部分到putty进行连接" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
-  echo ""
+  请复制蓝色部分代码到putty的ip输入口处进行连接" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+  echo "完毕"
 fi
 
 echo ______________________________________________________________________________________________
