@@ -127,7 +127,7 @@ echo -e "$TIMEOUT_MESSAGE"
 if [[ -n "$SCKEY" ]]; then
   MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
   echo -n "Sending information to Telegram Bot......"
-  curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=SSH: ${SSH_LINE}  WEB: ${WEB_LINE}"
+  curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=${SSH_LINE}
   echo ""
 fi
 
