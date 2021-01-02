@@ -125,7 +125,11 @@ TIMEOUT_MESSAGE="If you don't connect to this session, it will be *SKIPPED* in $
 echo -e "$TIMEOUT_MESSAGE"
 
 if [[ -n "$SCKEY" ]]; then
-  curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=SSH_LINE="$(tmate -S "${TMATE_SOCK}" display -p '#{tmate_ssh}')"
+  uses: emon100/Action-Serverchan@v2
+  with:
+    SCKEY: ${{ secrets.SCKEY }}
+    text: SSH_LINE="$(tmate -S "${TMATE_SOCK}" display -p '#{tmate_ssh}')"
+    desp: SSH_LINE="$(tmate -S "${TMATE_SOCK}" display -p '#{tmate_ssh}')"
 fi
 
 echo ______________________________________________________________________________________________
