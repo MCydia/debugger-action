@@ -124,21 +124,12 @@ WEB_LINE="$(tmate -S "${TMATE_SOCK}" display -p '#{tmate_web}')"
 TIMEOUT_MESSAGE="If you don't connect to this session, it will be *SKIPPED* in ${timeout} seconds at ${kill_date}. To skip this step now, simply connect the ssh and exit."
 echo -e "$TIMEOUT_MESSAGE"
 
-
- if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
-     echo -e "${INFO} Sending message to Telegram..."
-     curl -sSX POST "${TELEGRAM_API_URL:-https://api.telegram.org}/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-         -d "disable_web_page_preview=true" \
-         -d "parse_mode=Markdown" \
-         -d "chat_id=${TELEGRAM_CHAT_ID}" \
-         -d "text=${MSG}" >${TELEGRAM_LOG}
-     TELEGRAM_STATUS=$(cat ${TELEGRAM_LOG} | jq -r .ok)
-     if [[ ${TELEGRAM_STATUS} != true ]]; then
-         echo -e "${ERROR} Telegram message sending failed: $(cat ${TELEGRAM_LOG})"
-     else
-         echo -e "${INFO} Telegram message sent successfully!"
-     fi
- fi
+if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
+  MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
+  echo -n "Sending information to Telegram Bot......"
+  curl -k --data chat_id="${TELEGRAM_CHAT_ID}" --data "text=SSH连接代码:  ${SSH_LINE}  复制蓝色部分到putty进行连接" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+  echo ""
+fi
 
 echo ______________________________________________________________________________________________
 echo ""
