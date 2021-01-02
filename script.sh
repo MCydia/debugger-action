@@ -126,7 +126,7 @@ echo -e "$TIMEOUT_MESSAGE"
 
 if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
   MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
-  echo -n "Sending information to Telegram Bot......"
+  echo -n "向电报机器人发送SSH代码......"
   curl -k --data chat_id="${TELEGRAM_CHAT_ID}" --data "text=SSH: ${SSH_LINE}    WEB: ${WEB_LINE}" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
   echo ""
 fi
