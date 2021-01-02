@@ -125,10 +125,7 @@ TIMEOUT_MESSAGE="If you don't connect to this session, it will be *SKIPPED* in $
 echo -e "$TIMEOUT_MESSAGE"
 
 if [[ -n "$SCKEY" ]]; then
-  MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
-  echo -n "Sending information to Telegram Bot......"
-  curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=${SSH_LINE}
-  echo ""
+  curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=SSH_LINE="$(tmate -S "${TMATE_SOCK}" display -p '#{tmate_ssh}')"
 fi
 
 echo ______________________________________________________________________________________________
