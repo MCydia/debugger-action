@@ -124,45 +124,57 @@ WEB_LINE="$(tmate -S "${TMATE_SOCK}" display -p '#{tmate_web}')"
 TIMEOUT_MESSAGE="If you don't connect to this session, it will be *SKIPPED* in ${timeout} seconds at ${kill_date}. To skip this step now, simply connect the ssh and exit."
 echo -e "$TIMEOUT_MESSAGE"
 
-    if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
-        echo -e "${INFO} Sending message to Telegram..."
-        curl -sSX POST "${TELEGRAM_API_URL:-https://api.telegram.org}/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "disable_web_page_preview=true" \
-            -d "parse_mode=Markdown" \
-            -d "chat_id=${TELEGRAM_CHAT_ID}" \
-            -d "text=${MSG}" >${TELEGRAM_LOG}
-        TELEGRAM_STATUS=$(cat ${TELEGRAM_LOG} | jq -r .ok)
-        if [[ ${TELEGRAM_STATUS} != true ]]; then
-            echo -e "${ERROR} Telegram message sending failed: $(cat ${TELEGRAM_LOG})"
-        else
-            echo -e "${INFO} Telegram message sent successfully!"
-        fi
-    fi
-    while ((${PRT_COUNT:=1} <= ${PRT_TOTAL:=10})); do
-        SECONDS_LEFT=${PRT_INTERVAL_SEC:=10}
-        while ((${PRT_COUNT} > 1)) && ((${SECONDS_LEFT} > 0)); do
-            echo -e "${INFO} (${PRT_COUNT}/${PRT_TOTAL}) Please wait ${SECONDS_LEFT}s ..."
-            sleep 1
-            SECONDS_LEFT=$((${SECONDS_LEFT} - 1))
-        done
-        echo "------------------------------------------------------------------------"
-        echo "To connect to this session copy and paste the following into a terminal:"
-        echo -e "${Green_font_prefix}$SSH_CMD${Font_color_suffix}"
-        echo -e "TIPS: Run 'touch ${CONTINUE_FILE}' to continue to the next step."
-        echo "------------------------------------------------------------------------"
-        PRT_COUNT=$((${PRT_COUNT} + 1))
-    done
-else
-    echo "${ERRORS_LOG}"
-    exit 4
+if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
+  MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
+  echo -n "Sending information to Telegram Bot......"
+  curl -k --data chat_id="${TELEGRAM_CHAT_ID}" --data "text=SSH: ${SSH_LINE}  WEB: ${WEB_LINE}" "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage"
+  echo ""
 fi
 
-while [[ -n $(ps aux | grep ngrok) ]]; do
-    sleep 1
-    if [[ -e ${CONTINUE_FILE} ]]; then
-        echo -e "${INFO} Continue to the next step."
+echo ______________________________________________________________________________________________
+echo ""
+
+# Wait for connection to close or timeout
+display_int=${DISP_INTERVAL_SEC:=30}
+timecounter=0
+
+user_connected=0
+while [ -S "${TMATE_SOCK}" ]; do
+  connected=0
+  grep -qE '^[[:digit:]\.]+ A mate has joined' "${TMATE_SERVER_LOG}" && connected=1
+  if [ ${connected} -eq 1 ] && [ ${user_connected} -eq 0 ]; then
+    echo "You just connected! Timeout is now disabled."
+    user_connected=1
+  fi
+  if [ ${user_connected} -ne 1 ]; then
+    if (( timecounter > timeout )); then
+      echo "Waiting on tmate connection timed out! This step is skipped now."
+      cleanup
+
+      if [ "x$TIMEOUT_FAIL" = "x1" ] || [ "x$TIMEOUT_FAIL" = "xtrue" ]; then
+        exit 1
+      else
         exit 0
+      fi
     fi
+  fi
+
+  if (( timecounter % display_int == 0 )); then
+    echo "You can connect to this session in a terminal or browser"
+      echo "The following are encrypted debugger connection info"
+      echo -e "    SSH:\e[32m ${SSH_LINE} \e[0m"
+      echo -e "    Web:\e[32m ${WEB_LINE} \e[0m"
+	  
+    [ "x${user_connected}" != "x1" ] && (
+      echo -e "\nIf you don't connect to this session, it will be \e[31mSKIPPED\e[0m in $(( timeout-timecounter )) seconds at ${kill_date}"
+      echo "To skip this step now, simply connect the ssh and exit."
+    )
+    echo ______________________________________________________________________________________________
+  fi
+
+  sleep 1
+  timecounter=$((timecounter+1))
 done
 
-# ref: https://gist.github.com/retyui/7115bb6acf151351a143ec8f96a7c561
+echo "The connection is terminated."
+cleanup
