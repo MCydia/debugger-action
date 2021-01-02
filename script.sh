@@ -138,7 +138,7 @@ echo -e "$TIMEOUT_MESSAGE"
      else
          echo -e "${INFO} Telegram message sent successfully!"
      fi
-
+ fi
 
 echo ______________________________________________________________________________________________
 echo ""
