@@ -127,7 +127,7 @@ echo -e "$TIMEOUT_MESSAGE"
 if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
   MSG="SSH: ${SSH_LINE}\nWEB: ${WEB_LINE}"
   echo -n "......向电报机器人发送SSH连接代码......"
-  curl -k --data chat_id="${TELEGRAM_CHAT_ID}" --data "text=${{matrix.target}}SSH连接代码:  
+  curl -k --data chat_id="${TELEGRAM_CHAT_ID}" --data "text=SSH连接代码:  
   
   ${SSH_LINE}  
   
