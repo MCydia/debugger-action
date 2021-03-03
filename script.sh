@@ -131,11 +131,13 @@ if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
   
   ${SSH_LINE}  
   
-  请复制蓝色部分代码到putty的ip输入口处进行连接
+  复制上面ssh后的蓝色部分代码使用工具进行连接
+  
+  echo "------------------------------------------------------------------------------------------"
   
   WEB: ${WEB_LINE}
   
-  浏览器直接打开" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+  WEB代码是浏览器直接打开使用" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
   echo ""
 fi
 
